@@ -17,7 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex h-screen w-screen">
         <Sidebar className="w-64" variant="floating">
           <SidebarHeader className="p-4">
             <h2 className="text-lg font-semibold">HustleFlow</h2>

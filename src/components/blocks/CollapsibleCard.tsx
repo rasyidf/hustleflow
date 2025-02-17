@@ -11,16 +11,16 @@ interface CollapsibleCardProps {
   title: string
   price: string
   isChecked: boolean
-  onCheckedChange: (checked: boolean) => void
+  onCheckedChange?: (checked: boolean) => void
   children?: React.ReactNode
 }
 
-export function CollapsibleCard({ 
-  title, 
-  price, 
-  isChecked, 
-  onCheckedChange, 
-  children 
+export function CollapsibleCard({
+  title,
+  price,
+  isChecked,
+  onCheckedChange,
+  children
 }: CollapsibleCardProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -28,12 +28,12 @@ export function CollapsibleCard({
     <Card className="mb-2">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CardHeader className="p-3">
-          <div className="flex items-center space-x-4">
-            <Checkbox 
+          <div className="flex items-center space-x-4">{
+            onCheckedChange && <Checkbox
               checked={isChecked}
               onCheckedChange={onCheckedChange}
               onClick={(e) => e.stopPropagation()}
-            />
+            />}
             <div className="flex-1 flex justify-between items-center">
               <span className="font-medium">{title}</span>
               <div className="flex items-center space-x-4">

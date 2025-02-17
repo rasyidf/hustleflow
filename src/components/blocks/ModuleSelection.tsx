@@ -6,7 +6,7 @@ import { allItems, subcomponents } from "@/lib/initialItems"
 import { ModuleItem } from "@/lib/ModuleItem"
 import { useState } from "react"
 import { CollapsibleCard } from "./CollapsibleCard"
-import { Checkbox } from "./ui/checkbox"
+import { Checkbox } from "../ui/checkbox"
 
 interface ModuleSelectionProps {
   selectedItems: ModuleItem[]
