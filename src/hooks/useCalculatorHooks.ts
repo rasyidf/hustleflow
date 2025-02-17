@@ -1,7 +1,7 @@
+import { convertCurrency } from "@/lib/currencyUtils"
 import { ModuleItem } from "@/lib/ModuleItem"
 import { ProjectParameter, defaultParameters } from "@/lib/projectParameters"
 import { calculateProjectCost } from "@/lib/projectParameters"
-import { convertWithRates, getBaseRate } from "@/lib/currencyUtils"
 import { useSettingsStore } from "@/lib/store"
 import { useEffect, useState } from "react"
 
@@ -10,14 +10,13 @@ export interface ParameterValues {
 }
 
 export function useCalculatorHooks() {
-  const { 
-    currency, 
+  const {
+    currency,
     exchangeRates,
     parameterBiases,
     parameterDefaults
   } = useSettingsStore()
-  
-  const [baseRate, setBaseRate] = useState(getBaseRate(currency))
+
   const [parameters, setParameters] = useState<ProjectParameter[]>(defaultParameters)
   const [parameterValues, setParameterValues] = useState<ParameterValues>(() => {
     // Initialize with stored defaults if available, otherwise use parameter defaults
@@ -37,10 +36,7 @@ export function useCalculatorHooks() {
     }))
   }
 
-  // Update base rate when currency changes
-  useEffect(() => {
-    setBaseRate(getBaseRate(currency))
-  }, [currency])
+
 
   useEffect(() => {
     // Reset parameter values when defaults change
@@ -48,7 +44,7 @@ export function useCalculatorHooks() {
       const newValues = { ...prev }
       for (const [id, value] of Object.entries(parameterDefaults)) {
         if (newValues[id] !== undefined) {
-          newValues[id] = value
+          newValues[id] = value as number | boolean | string | string[]
         }
       }
       return newValues
@@ -62,11 +58,11 @@ export function useCalculatorHooks() {
       defaultValue: parameterValues[param.id]
     }))
 
-    let calculatedPrice = calculateProjectCost(baseRate, params)
+    let calculatedPrice = calculateProjectCost(50, params)
 
     // Add module items prices
     const itemsPrice = selectedItems.reduce((sum, item) => {
-      const itemPrice = convertWithRates(item.basePrice, 'USD', currency, exchangeRates)
+      const itemPrice = convertCurrency(item.basePrice, 'USD', currency)
       return sum + itemPrice
     }, 0)
 
@@ -77,7 +73,6 @@ export function useCalculatorHooks() {
 
     setTotalPrice(Math.round(calculatedPrice))
   }, [
-    baseRate,
     parameterValues,
     parameters,
     selectedItems,
@@ -89,8 +84,6 @@ export function useCalculatorHooks() {
 
   return {
     currency,
-    baseRate,
-    setBaseRate,
     parameters,
     setParameters,
     parameterValues,

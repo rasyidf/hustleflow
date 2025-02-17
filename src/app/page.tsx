@@ -1,9 +1,12 @@
-import { Layout } from "@/components/Layout"
+"use client";
 import Calculator from "@/components/Calculator"
+import { Layout } from "@/components/Layout";
 
 export default function Home() {
   return (
-    <Calculator />
+    <Layout>
+      <Calculator />
+    </Layout>
   )
 }
 

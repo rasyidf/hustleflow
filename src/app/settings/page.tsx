@@ -1,18 +1,17 @@
 "use client"
-import { useState, useEffect } from "react"
-import { useSettingsStore } from "@/lib/store"
-import { GeneralSettings } from "@/components/settings/GeneralSettings"
-import { ExchangeRates } from "@/components/settings/ExchangeRates"
-import { BiasSettings } from "@/components/settings/BiasSettings"
+import { Layout } from "@/components/Layout"
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings"
+import { BiasSettings } from "@/components/settings/BiasSettings"
+import { ExchangeRates } from "@/components/settings/ExchangeRates"
+import { GeneralSettings } from "@/components/settings/GeneralSettings"
 import { SettingsTabs } from "@/components/settings/SettingsLayout"
+import { useSettingsStore } from "@/lib/store"
+import { useEffect, useState } from "react"
 
 export default function SettingsPage() {
   const {
     currency,
     exchangeRates,
-    complexityBias,
-    urgencyBias,
     defaultBaseRate,
     defaultDuration,
     defaultUnit,
@@ -20,8 +19,6 @@ export default function SettingsPage() {
     isHighContrast,
     setCurrency,
     setExchangeRates,
-    setComplexityBias,
-    setUrgencyBias,
     setDefaultBaseRate,
     setDefaultDuration,
     setDefaultUnit,
@@ -94,9 +91,12 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="container max-w-4xl py-8">
-      <SettingsTabs tabs={tabs} defaultValue="general" />
-    </div>
+
+    <Layout>
+      <div className="container max-w-4xl py-8">
+        <SettingsTabs tabs={tabs} defaultValue="general" />
+      </div>
+    </Layout>
   )
 }
 

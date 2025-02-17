@@ -1,6 +1,8 @@
-import { ProjectParameter, ParameterType } from "./projectParameters"
-import { useSettingsStore, Currency } from "./store"
+"use client";
+
 import { convertCurrency } from "./currencyUtils"
+import { ParameterType, ProjectParameter } from "./projectParameters"
+import { useSettingsStore } from "./store"
 
 // Helper function to calculate parameter effects
 export function calculateParameterEffect(

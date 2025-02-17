@@ -1,3 +1,6 @@
+"use client";
+
+
 import { ModuleItem } from "./ModuleItem"
 
 // Subcomponents

@@ -1,4 +1,7 @@
-import { useSettingsStore, UnitType } from './store'
+"use client";
+
+
+import { UnitType, useSettingsStore } from './store'
 
 export type ParameterType = 'number' | 'select' | 'toggle' | 'options' | 'custom'
 
@@ -185,19 +188,12 @@ export const defaultParameters: ProjectParameter[] = [
 ];
 
 // Utility function for function composition
-const pipe = (...fns: Function[]) => (x: any) => fns.reduce((v, f) => f(v), x);
+const pipe = <T>(...fns: Array<(x: T) => T>) => (x: T) => fns.reduce((v, f) => f(v), x);
 
-interface PricingModelInput {
-    basePrice: number;
-    workHours: number;
-    hourlyRate: number;
-    teamSize: number;
-    parameters: ProjectParameter[];
-}
 
 // New pricing calculation functions
 const applyBasePrice = (base: number) => (price: number) => price + base;
-const applyWorkload = (hours: number, rate: number, team: number) => 
+const applyWorkload = (hours: number, rate: number, team: number) =>
     (price: number) => price + (hours * rate * team);
 
 const applyModifiers = (parameters: ProjectParameter[], state: {
@@ -206,7 +202,7 @@ const applyModifiers = (parameters: ProjectParameter[], state: {
 }) => (price: number) => {
     return parameters.reduce((total, param) => {
         let modifier = 0;
-        
+
         // Handle team size affects
         if (param.affects?.some(a => a.paramId === 'teamSize')) {
             const weight = param.affects.find(a => a.paramId === 'teamSize')?.weight || 0;
@@ -258,27 +254,27 @@ export function calculateProjectCost(basePrice: number, parameters: ProjectParam
 export function getParametersWithSettings(settings = useSettingsStore.getState()): ProjectParameter[] {
     return defaultParameters.map(param => {
         const newParam = { ...param };
-        
+
         // Apply stored parameter bias if it exists
         if (settings.parameterBiases[param.id] !== undefined) {
             newParam.bias = settings.parameterBiases[param.id];
         }
-        
+
         // Apply stored default value if it exists
         if (settings.parameterDefaults[param.id] !== undefined) {
-            newParam.defaultValue = settings.parameterDefaults[param.id];
+            newParam.defaultValue = settings.parameterDefaults[param.id] as number | boolean | string | string[];
         }
-        
+
         // Special handling for base rate and duration
         if (param.id === 'baseRate') {
             newParam.defaultValue = settings.defaultBaseRate;
         }
-        
+
         if (param.id === 'duration') {
             newParam.defaultValue = settings.defaultDuration;
             newParam.unit = settings.defaultUnit;
         }
-        
+
         return newParam;
     });
 }

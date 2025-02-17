@@ -1,3 +1,6 @@
+"use client";
+
+
 interface ModuleMetadata {
   timeWeight?: number;  // Represents estimated time investment (1-10)
   complexityWeight?: number;  // Represents implementation complexity (1-10)

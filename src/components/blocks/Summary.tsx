@@ -1,3 +1,5 @@
+"use client";
+
 import type { ModuleItem } from "@/lib/ModuleItem"
 import { formatCurrency } from "@/lib/currencyUtils"
 import { ProjectParameter } from "@/lib/projectParameters"

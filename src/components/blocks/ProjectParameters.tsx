@@ -6,12 +6,11 @@ import { NumberSliderInput } from "./NumberSliderInput"
 
 interface ProjectParametersProps {
   parameters: ProjectParameter[]
-  values: Record<string, number | boolean | string[]>
+  values: Record<string, string | number | boolean | string[]>
   onChange: (id: string, value: number | boolean | string | string[]) => void
-  defaultUnit: string
 }
 
-export function ProjectParameters({ parameters, values, onChange, defaultUnit }: ProjectParametersProps) {
+export function ProjectParameters({ parameters, values, onChange }: ProjectParametersProps) {
   const renderParameter = (param: ProjectParameter) => {
     switch (param.type) {
       case 'number':

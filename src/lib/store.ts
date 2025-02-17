@@ -1,3 +1,5 @@
+"use client";
+
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
@@ -38,7 +40,7 @@ interface SettingsState {
   
   // Parameter Biases
   parameterBiases: Record<string, number>
-  parameterDefaults: Record<string, any>
+  parameterDefaults: Record<string, unknown>
 
   // Appearance Settings
   isDarkMode: boolean
@@ -54,7 +56,7 @@ interface SettingsState {
   setDefaultUnit: (unit: UnitType) => void
   setRate: (currency: Currency, amount: number) => void
   setParameterBias: (parameterId: string, bias: number) => void
-  setParameterDefault: (parameterId: string, value: any) => void
+  setParameterDefault: (parameterId: string, value: unknown) => void
   setIsDarkMode: (isDarkMode: boolean) => void
   setIsHighContrast: (isHighContrast: boolean) => void
 }
