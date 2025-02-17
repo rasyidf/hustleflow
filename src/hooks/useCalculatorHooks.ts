@@ -1,7 +1,7 @@
 import { ModuleItem } from "@/lib/ModuleItem"
 import { ProjectParameter, defaultParameters } from "@/lib/projectParameters"
-import { calculateCombinedEffects, normalizeParameterValue } from "@/lib/projectUtils"
-import { convertCurrency, convertWithRates, getBaseRate } from "@/lib/currencyUtils"
+import { calculateProjectCost } from "@/lib/projectParameters"
+import { convertWithRates, getBaseRate } from "@/lib/currencyUtils"
 import { useSettingsStore } from "@/lib/store"
 import { useEffect, useState } from "react"
 
@@ -56,29 +56,13 @@ export function useCalculatorHooks() {
   }, [parameterDefaults])
 
   useEffect(() => {
-    // Calculate price using parameter formulas
-    let calculatedPrice = baseRate
+    // Calculate price using the new pricing model
+    const params = parameters.map(param => ({
+      ...param,
+      defaultValue: parameterValues[param.id]
+    }))
 
-    // Apply each parameter's formula effect
-    parameters.forEach(param => {
-      if (param.formula) {
-        calculatedPrice = param.formula(calculatedPrice, parameters)
-      }
-    })
-
-    // Calculate combined effects from parameters
-    const effectsFactor = parameters.reduce((factor, param) => {
-      const value = parameterValues[param.id]
-      const normalizedValue = normalizeParameterValue(value, param)
-      const combinedEffect = calculateCombinedEffects(parameters, parameterValues as Record<string, string | number | boolean>, param.id)
-      
-      // Apply parameter bias from settings or use default
-      const paramBias = parameterBiases[param.id] ?? param.bias
-
-      return factor * (1 + (normalizedValue + combinedEffect) * paramBias)
-    }, 1)
-
-    calculatedPrice *= effectsFactor
+    let calculatedPrice = calculateProjectCost(baseRate, params)
 
     // Add module items prices
     const itemsPrice = selectedItems.reduce((sum, item) => {

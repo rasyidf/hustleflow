@@ -184,6 +184,77 @@ export const defaultParameters: ProjectParameter[] = [
     }
 ];
 
+// Utility function for function composition
+const pipe = (...fns: Function[]) => (x: any) => fns.reduce((v, f) => f(v), x);
+
+interface PricingModelInput {
+    basePrice: number;
+    workHours: number;
+    hourlyRate: number;
+    teamSize: number;
+    parameters: ProjectParameter[];
+}
+
+// New pricing calculation functions
+const applyBasePrice = (base: number) => (price: number) => price + base;
+const applyWorkload = (hours: number, rate: number, team: number) => 
+    (price: number) => price + (hours * rate * team);
+
+const applyModifiers = (parameters: ProjectParameter[], state: {
+    teamSize: number,
+    workHours: number
+}) => (price: number) => {
+    return parameters.reduce((total, param) => {
+        let modifier = 0;
+        
+        // Handle team size affects
+        if (param.affects?.some(a => a.paramId === 'teamSize')) {
+            const weight = param.affects.find(a => a.paramId === 'teamSize')?.weight || 0;
+            if (param.defaultValue === true || typeof param.defaultValue === 'number') {
+                state.teamSize += Number(param.defaultValue) * weight;
+            }
+        }
+
+        // Handle duration/hours affects
+        if (param.affects?.some(a => a.paramId === 'duration')) {
+            const weight = param.affects.find(a => a.paramId === 'duration')?.weight || 0;
+            if (param.defaultValue === true || typeof param.defaultValue === 'number') {
+                state.workHours += Number(param.defaultValue) * weight * 8; // Convert to hours
+            }
+        }
+
+        // Apply parameter-specific formula if it exists
+        if (param.formula) {
+            modifier = param.formula(total, parameters) - total;
+        }
+
+        return total + modifier;
+    }, price);
+};
+
+export function calculateProjectCost(basePrice: number, parameters: ProjectParameter[]): number {
+    const workHours = convertDurationToHours(
+        parameters.find(p => p.id === 'duration')?.defaultValue as number || 0,
+        useSettingsStore.getState().defaultUnit
+    );
+
+    const hourlyRate = parameters.find(p => p.id === 'baseRate')?.defaultValue as number || 0;
+    const initialTeamSize = parameters.find(p => p.id === 'teamSize')?.defaultValue as number || 1;
+
+    const state = {
+        teamSize: initialTeamSize,
+        workHours: workHours
+    };
+
+    const finalPrice = pipe(
+        applyBasePrice(basePrice),
+        applyWorkload(state.workHours, hourlyRate, state.teamSize),
+        applyModifiers(parameters, state)
+    )(0);
+
+    return Math.max(finalPrice, basePrice);
+}
+
 export function getParametersWithSettings(settings = useSettingsStore.getState()): ProjectParameter[] {
     return defaultParameters.map(param => {
         const newParam = { ...param };
