@@ -14,6 +14,9 @@ interface ModuleSelectionProps {
   currency: string
 }
 
+type SortOption = 'name' | 'price'
+type SortDirection = 'asc' | 'desc'
+
 export default function ModuleSelection({ selectedItems, onItemsChange, currency }: ModuleSelectionProps) {
   const [availableItems, setAvailableItems] = useState(
     allItems.filter((item) => !selectedItems.some((selected) => selected.id === item.id))
@@ -21,6 +24,31 @@ export default function ModuleSelection({ selectedItems, onItemsChange, currency
   const [checkedAvailable, setCheckedAvailable] = useState<string[]>([])
   const [checkedSelected, setCheckedSelected] = useState<string[]>([])
   const [selectedSubcomponents, setSelectedSubcomponents] = useState<Record<string, string[]>>({})
+  const [sortOption, setSortOption] = useState<SortOption>('name')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+
+  const sortItems = (items: ModuleItem[]): ModuleItem[] => {
+    return [...items].sort((a, b) => {
+      let comparison = 0
+      if (sortOption === 'name') {
+        comparison = a.name.localeCompare(b.name)
+      } else {
+        const priceA = calculateModulePrice(a)
+        const priceB = calculateModulePrice(b)
+        comparison = priceA - priceB
+      }
+      return sortDirection === 'asc' ? comparison : -comparison
+    })
+  }
+
+  const toggleSort = (option: SortOption) => {
+    if (sortOption === option) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortOption(option)
+      setSortDirection('asc')
+    }
+  }
 
   const moveToSelected = () => {
     const itemsToMove = availableItems.filter(item => checkedAvailable.includes(item.id))
@@ -120,23 +148,40 @@ export default function ModuleSelection({ selectedItems, onItemsChange, currency
     </CollapsibleCard>
   )
 
-  // Rest of the component remains the same, just update the render section:
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <div className="flex justify-between items-center mb-2">
           <h3 className="font-semibold">Available Items</h3>
-          <Button
-            size="sm"
-            onClick={moveToSelected}
-            disabled={checkedAvailable.length === 0}
-          >
-            Add →
-          </Button>
+          <div className="flex gap-2 items-center">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toggleSort('name')}
+              className={sortOption === 'name' ? 'bg-secondary' : ''}
+            >
+              Name {sortOption === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toggleSort('price')}
+              className={sortOption === 'price' ? 'bg-secondary' : ''}
+            >
+              Price {sortOption === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
+            </Button>
+            <Button
+              size="sm"
+              onClick={moveToSelected}
+              disabled={checkedAvailable.length === 0}
+            >
+              Add →
+            </Button>
+          </div>
         </div>
         <Card>
           <CardContent className="p-2">
-            {availableItems.map((item) => renderItem(item, false))}
+            {sortItems(availableItems).map((item) => renderItem(item, false))}
           </CardContent>
         </Card>
       </div>
@@ -154,7 +199,7 @@ export default function ModuleSelection({ selectedItems, onItemsChange, currency
         </div>
         <Card>
           <CardContent className="p-2">
-            {selectedItems.map((item) => renderItem(item, true))}
+            {sortItems(selectedItems).map((item) => renderItem(item, true))}
           </CardContent>
         </Card>
       </div>
